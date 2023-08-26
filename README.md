@@ -12,7 +12,7 @@ Optionally watch the logs initially using the USB/JTAG interface (possibly repla
 idf.py monitor --no-reset --port /dev/tty.usbmodem*
 ```
 
-The program will wait 10s, then initialize TinyUSB, then wait 10 more seconds, then `esp_restart`. After the restart, the USB/JTAG interface will no longer work.
+The program will wait 10s, then initialize TinyUSB, then wait 10 more seconds, then `esp_restart`. Without the workaround, after the restart, the USB/JTAG interface will no longer work.
 
 ## Workarounds attempted:
 
@@ -25,3 +25,4 @@ The program will wait 10s, then initialize TinyUSB, then wait 10 more seconds, t
     ```
 * Deep sleep for 5s (thinking possibly that would actually power cycle the USB peripheral). This did not fix the issue.
 * `periph_module_disable(usb_otg_periph_signal.module);`. This did not fix the issue.
+* ✅🎉 use `usb_del_phy` then `usb_new_phy` with `USB_PHY_CTRL_SERIAL_JTAG`. THIS FIXES THE ISSUE.

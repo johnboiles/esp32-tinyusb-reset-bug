@@ -11,10 +11,10 @@
 // extern const usb_phy_signal_conn_t usb_otg_periph_signal;
 
 // For the `usb_del_phy` workaround attempt
-// #include <esp_private/usb_phy.h>
-// Must add this to tinyusb.c since you can't extern static variables
+#include <esp_private/usb_phy.h>
+// NOTE: Must add this to tinyusb.c since you can't extern static variables
 // usb_phy_handle_t *phy_hdl_ptr = &phy_hdl;
-// extern "C" usb_phy_handle_t *phy_hdl_ptr;
+extern "C" usb_phy_handle_t *phy_hdl_ptr;
 
 // For the deep sleep workaround attempt
 #include <esp_sleep.h>
@@ -46,12 +46,19 @@ extern "C" void app_main(void) { // NOLINT(readability-identifier-naming)
 
     // TODO: The goal is to understand why the USB/JTAG device does not come back after esp_restart
 
-    // This does not work
-    // usb_del_phy(*phy_hdl_ptr);
 
     // This does not work
     // periph_module_disable(usb_otg_periph_signal.module);
     
+
+    // THIS WORKS!!
+    usb_del_phy(*phy_hdl_ptr);
+    usb_phy_config_t phy_conf = {
+        .controller = USB_PHY_CTRL_SERIAL_JTAG,
+    };
+    usb_phy_handle_t jtag_phy;
+    usb_new_phy(&phy_conf, &jtag_phy);
+
     // Blink LED to indicate we're rebooting
     gpio_num_t ledPin = GPIO_NUM_7;
     gpio_set_direction(ledPin, GPIO_MODE_OUTPUT);
